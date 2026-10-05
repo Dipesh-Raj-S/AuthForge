@@ -1,0 +1,12 @@
+from pydantic_settings import SettingsConfigDict
+from pydantic_settings import BaseSettings
+
+
+class Settings(BaseSettings):
+    APP_NAME:str
+    DATABASE_URL:str
+
+    model_config=SettingsConfigDict(
+        env_file=".env"
+    )
+settings=Settings()
