@@ -1,0 +1,40 @@
+services:
+
+  # FastAPI Authorization Server
+  auth-server:
+    build:
+      context: ./auth-server
+      dockerfile: Dockerfile
+    container_name: authforge-server
+    ports:
+      - "8000:8000"
+    environment:
+      APP_NAME: AuthForge
+      APP_VERSION: "1.0.0"
+      DEBUG: "true"
+      DATABASE_URL: postgresql+psycopg://authforge:authforge_dev@postgres:5432/authforge
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16
+    container_name: authforge-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: authforge
+      POSTGRES_USER: authforge
+      POSTGRES_PASSWORD: authforge_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U authforge -d authforge"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
